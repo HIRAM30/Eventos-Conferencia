@@ -10,7 +10,7 @@ def home():
 
 @app.route('/login')
 def login():
-    return render_template("inicio_sesion.html")  # Página de inicio de sesión
+    return render_template("inicio_sesion")  # Página de inicio de sesión
 
 @app.route('/registro_usuario', methods=["GET", "POST"])
 def registro_usuario():
