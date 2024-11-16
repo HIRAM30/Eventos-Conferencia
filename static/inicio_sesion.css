@@ -1,0 +1,134 @@
+/* Reseteo general */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f1f5f8;
+    background-image: url('../static/image/image.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    padding: 20px; /* Añadido para asegurar que el contenido se mantenga centrado */
+}
+
+/* Contenedor principal */
+.container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    max-width: 900px; /* Limita el tamaño para hacerlo más compacto */
+    height: 400px; /* Ajuste de altura */
+    border-radius: 10px;
+    overflow: hidden;
+    justify-content: center; /* Asegura que el contenido se centre */
+}
+
+/* Panel izquierdo */
+.left-panel {
+    background-color: #5a6e8e; /* Azul polvoriento */
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    color: white;
+}
+
+.logo {
+    width: 200px; /* Ajustado para que el logo no sea tan grande */
+    max-width: 100%;
+}
+
+/* Panel derecho */
+.right-panel {
+    flex: 0 0 380px; /* Establecido un ancho fijo para que el panel derecho no sea tan ancho */
+    background-color: #ffffff;
+    padding: 30px; /* Reducido el padding para hacerlo más compacto */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+}
+
+/* Contenedor del formulario de login */
+.login-container {
+    width: 100%;
+    max-width: 300px; /* Ajustado para que el formulario sea más pequeño */
+    text-align: center;
+}
+
+.login-container h2 {
+    font-size: 22px; /* Reducido el tamaño del título */
+    color: #3b4e72; /* Azul grisáceo */
+    margin-bottom: 20px;
+}
+
+/* Estilos de entrada y etiquetas */
+.input-group {
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 14px;
+    color: #3b4e72; /* Azul grisáceo */
+    display: block;
+    margin-bottom: 5px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+    color: #333;
+}
+
+.input-group input:focus {
+    border-color: #0084ff; /* Azul brillante */
+    box-shadow: 0px 0px 4px rgba(0, 132, 255, 0.3);
+}
+
+/* Botón de inicio de sesión */
+.login-button {
+    background-color: #012E4A; /* Azul esmeralda */
+    color: #ffffff;
+    padding: 12px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    width: 100%;
+    transition: background-color 0.3s ease;
+    margin-top: 20px;
+}
+
+.login-button:hover {
+    background-color: #004b8c; /* Azul vaquero */
+}
+
+/* Opción adicional */
+.additional-options {
+    margin-top: 15px;
+}
+
+.recover-link {
+    padding: 5px;
+    font-size: 14px;
+    color: #5a6e8e; /* Azul polvoriento */
+    text-decoration: none;
+}
+
+.recover-link:hover {
+    text-decoration: underline;
+}
