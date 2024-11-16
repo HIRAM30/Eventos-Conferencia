@@ -24,16 +24,16 @@ def insertar_usuario(nombre_usuario, correo_electronico, contraseña, tipo_usuar
         conexion.close()
 
 # Función para obtener un usuario por nombre de usuario
-def obtener_usuario_por_nombre_usuario(nombre_usuario):
+def obtener_usuario_por_correo(correo_electronico):
     conexion = crear_conexion()  # Función que crea la conexión a la base de datos
     cursor = conexion.cursor(dictionary=True)  # Usamos 'dictionary=True' para obtener los resultados como un diccionario
     try:
         consulta = """
             SELECT nombre_usuario, correo_electronico, contraseña, tipo_usuario
             FROM usuario
-            WHERE nombre_usuario = %s
+            WHERE correo_electronico = %s
         """
-        cursor.execute(consulta, (nombre_usuario,))
+        cursor.execute(consulta, (correo_electronico,))
         usuario = cursor.fetchone()  # Obtiene solo el primer usuario que coincida
 
         return usuario

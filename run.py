@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, flash
-from crud_usuario import insertar_usuario, obtener_usuario_por_nombre_usuario  # Importamos las funciones CRUD
+from crud_usuario import insertar_usuario, obtener_usuario_por_correo  # Importamos las funciones CRUD
 from werkzeug.security import check_password_hash  # Para verificar las contraseñas
 
 app = Flask(__name__)
@@ -13,11 +13,11 @@ def home():
 def login():
     if request.method == "POST":
         # Recibimos los datos del formulario
-        nombre_usuario = request.form["correo"]  # Lo tratamos como nombre de usuario
+        correo_electronico = request.form["correo"]  # Tratamos el correo como identificador
         contraseña = request.form["contraseña"]
 
-        # Verificamos si el usuario existe
-        usuario = obtener_usuario_por_nombre_usuario(nombre_usuario)
+        # Verificamos si el usuario existe por correo electrónico
+        usuario = obtener_usuario_por_correo(correo_electronico)
         
         if usuario:
             # Comparamos la contraseña ingresada con la almacenada (hashed)
@@ -27,7 +27,7 @@ def login():
             else:
                 flash("Contraseña incorrecta", "error")
         else:
-            flash("Usuario no encontrado", "error")
+            flash("Correo no encontrado", "error")
 
         return redirect(url_for("login"))  # Redirige al formulario de login si hubo error
 
