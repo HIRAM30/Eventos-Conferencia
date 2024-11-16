@@ -1,0 +1,114 @@
+/* Reseteo general */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f1f5f8;
+    background-image: url('../static/image/image.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+}
+
+/* Contenedor principal */
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    min-height: 80vh; /* Asegura que el contenedor ocupe más altura */
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+/* Panel derecho */
+.right-panel {
+    flex: 0 0 450px; /* Aumentamos el tamaño del panel para que sea más grande */
+    background-color: #ffffff;
+    padding: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px; /* Bordes redondeados */
+    box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1); /* Sombra suave */
+}
+
+/* Estilo para el formulario */
+.login-container {
+    width: 100%;
+    max-width: 380px; /* Tamaño máximo del formulario */
+    text-align: center;
+}
+
+h2 {
+    font-size: 24px;
+    color: #3b4e72;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    margin-bottom: 15px; /* Aumentamos el margen entre los campos para mayor claridad */
+    text-align: left;
+}
+
+.input-group label {
+    font-size: 14px;
+    color: #3b4e72;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.input-group input,
+.input-group select,
+button {
+    width: 100%;
+    padding: 12px; /* Aumentamos el padding para que los campos sean más visibles */
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px; /* Aumentamos el tamaño de la fuente */
+    color: #333;
+}
+
+.input-group input:focus,
+.input-group select:focus {
+    border-color: #0084ff;
+    box-shadow: 0px 0px 4px rgba(0, 132, 255, 0.3);
+}
+
+button {
+    background-color: #006bbd;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #004b8c;
+}
+
+.additional-options {
+    margin-top: 15px;
+}
+
+.recover-link {
+    padding: 5px;
+    font-size: 14px;
+    color: #5a6e8e;
+    text-decoration: none;
+}
+
+.recover-link:hover {
+    text-decoration: underline;
+}

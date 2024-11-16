@@ -1,0 +1,43 @@
+body {
+    background-color: #d3dde5; /* Gris-azul claro */
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+.welcome-container {
+    text-align: center;
+    background-color: #ffffff;
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    width: 400px;
+}
+
+h1 {
+    color: #3a5d73; /* Azul ahumado */
+    margin-bottom: 1rem;
+}
+
+p {
+    color: #6b8fa3; /* Azul polvoriento */
+    margin-bottom: 2rem;
+}
+
+button {
+    background-color: #5a8abf; /* Azul esmeralda */
+    color: #ffffff;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #47729f; /* Azul esmeralda más oscuro para hover */
+}
