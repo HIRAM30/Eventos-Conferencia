@@ -64,22 +64,31 @@ def index():
     return render_template("index.html")
 
 
+# Endpoint para obtener eventos desde la base de datos
 @app.route('/api/events', methods=['GET'])
 def obtener_eventos():
     conexion = crear_conexion()
     cursor = conexion.cursor(dictionary=True)
-    query = "SELECT id, titulo AS title, fecha_inicio AS start, fecha_fin AS end, descripcion FROM conferencias"
+    query = """
+    SELECT 
+        c.id_conferencia AS id, 
+        c.nombre AS title, 
+        c.descripcion AS description, 
+        c.fecha_inicio AS start, 
+        c.fecha_fin AS end
+    FROM conferencia c
+    """
     cursor.execute(query)
     eventos = cursor.fetchall()
     cursor.close()
     conexion.close()
 
-    print("Eventos obtenidos de la base de datos:", eventos)
-
+    # Ajustar el formato de fecha
     for evento in eventos:
         evento['start'] = evento['start'].isoformat()
         evento['end'] = evento['end'].isoformat() if evento['end'] else None
 
+    print("Eventos obtenidos de la base de datos:", eventos)  # Depuración
     return jsonify(eventos)
 
 

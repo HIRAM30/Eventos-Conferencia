@@ -11,10 +11,14 @@
 <body>
     <div id="calendar-container">
         <h1>Calendario de Conferencias</h1>
+
+        <!-- Botón de regresar -->
+        <a href="/index" class="btn btn-primary" style="display: inline-block; margin-bottom: 20px; text-decoration: none; background-color: #007bff; color: white; padding: 10px 15px; border-radius: 5px;">Regresar</a>
+        
+        <!-- Contenedor del calendario -->
         <div id="calendar"></div>
     </div>
     <script>
-        <a href="/index" class="btn btn-primary" style="display: inline-block; margin-bottom: 20px; text-decoration: none; background-color: #007bff; color: white; padding: 10px 15px; border-radius: 5px;">Regresar</a>
         document.addEventListener('DOMContentLoaded', function () {
             const calendarEl = document.getElementById('calendar');
             const calendar = new FullCalendar.Calendar(calendarEl, {
