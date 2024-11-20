@@ -83,3 +83,23 @@ def actualizar_contraseña(correo_electronico, nueva_contraseña):
     finally:
         cursor.close()
         conexion.close()
+
+
+# Función para obtener todos los usuarios
+def obtener_usuarios():
+    # Crear la conexión a la base de datos
+    conexion = crear_conexion()
+    cursor = conexion.cursor(dictionary=True)
+    
+    # Consultar los usuarios en la base de datos
+    query = "SELECT * FROM usuario"
+    cursor.execute(query)
+    usuarios = cursor.fetchall()
+    
+    # Cerrar la conexión
+    cursor.close()
+    conexion.close()
+
+    return usuarios
+
+

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Usuario</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <style>
+        /* Estilos para el popup */
+        .popup {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .popup.active {
+            display: block;
+        }
+
+        /* Estilos para el fondo oscuro */
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+        }
+
+        .overlay.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/perfil">Mi Perfil</a></li>
+                <li><a href="/logout">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Fondo oscuro para el popup -->
+    <div class="overlay" id="overlay"></div>
+
+    <!-- Ventana emergente para editar usuario -->
+    <div class="popup" id="popup">
+        <h2>Editar Usuario</h2>
+        <form method="POST" action="{{ url_for('editar_usuario', id_usuario=usuario['id_usuario']) }}">
+            <label for="nombre_usuario">Nombre:</label>
+            <input type="text" id="nombre_usuario" name="nombre_usuario" value="{{ usuario['nombre_usuario'] }}" required><br>
+
+            <label for="correo_electronico">Correo:</label>
+            <input type="email" id="correo_electronico" name="correo_electronico" value="{{ usuario['correo_electronico'] }}" required><br>
+
+            <label for="tipo_usuario">Tipo de Usuario:</label>
+            <select id="tipo_usuario" name="tipo_usuario" required>
+                <option value="asistente" {% if usuario.tipo_usuario == 'asistente' %}selected{% endif %}>Asistente</option>
+                <option value="organizador" {% if usuario.tipo_usuario == 'organizador' %}selected{% endif %}>Organizador</option>
+                <option value="admin" {% if usuario.tipo_usuario == 'admin' %}selected{% endif %}>Administrador</option>
+            </select><br>
+
+            <button type="submit" class="btn-editar">Actualizar Usuario</button>
+        </form>
+        <button onclick="cerrarPopup()">Cerrar</button>
+    </div>
+
+    <footer>
+        <p>&copy; 2024 Gestión de Conferencias. Todos los derechos reservados.</p>
+    </footer>
+
+    <script>
+        // Función para abrir el popup
+        function abrirPopup() {
+            document.getElementById('popup').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        }
+
+        // Función para cerrar el popup
+        function cerrarPopup() {
+            document.getElementById('popup').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        }
+    </script>
+</body>
+</html>
