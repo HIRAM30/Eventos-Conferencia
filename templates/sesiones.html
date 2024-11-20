@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agregar Sesión</title>
+    <link rel="stylesheet" href="../static/sesiones.css">
+    <script>
+        async function enviarFormulario(event) {
+            event.preventDefault(); // Evitar recargar la página
+            const form = event.target;
+
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Enviar datos al servidor usando Fetch API
+            try {
+                const response = await fetch(form.action, {
+                    method: form.method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data),
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    alert("¡Sesión agregada exitosamente!");
+                    window.location.href = result.redirect; // Redirigir a /index
+                } else {
+                    alert("Ocurrió un error al agregar la sesión.");
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Error al enviar los datos. Inténtalo de nuevo.");
+            }
+        }
+    </script>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Agregar Sesión</h1>
+        <!-- Formulario -->
+        <form action="/sesiones" method="POST" onsubmit="enviarFormulario(event)">
+            <label for="titulo">Título de la sesión</label>
+            <input type="text" id="titulo" name="titulo" placeholder="Título" required>
+
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" name="descripcion" rows="4" placeholder="Descripción de la sesión"></textarea>
+
+            <label for="fecha">Fecha</label>
+            <input type="date" id="fecha" name="fecha" required>
+
+            <label for="hora_inicio">Hora de inicio</label>
+            <input type="time" id="hora_inicio" name="hora_inicio" required>
+
+            <label for="hora_fin">Hora de fin</label>
+            <input type="time" id="hora_fin" name="hora_fin" required>
+
+            <label for="id_conferencia">Conferencia Asociada</label>
+            <select id="id_conferencia" name="id_conferencia" required>
+                <option value="">Selecciona una conferencia</option>
+                {% for conferencia in conferencias %}
+                <option value="{{ conferencia.id_conferencia }}">{{ conferencia.nombre }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="submit">Guardar Sesión</button>
+        </form>
+
+        <!-- Enlace para regresar -->
+        <a href="/index" class="back-link">Regresar</a>
+    </div>
+</body>
+</html>

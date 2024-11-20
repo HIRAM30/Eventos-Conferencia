@@ -97,5 +97,44 @@ def conferencias():
     return render_template("conferencias.html")
 
 
+@app.route('/sesiones', methods=["GET", "POST"])
+def sesiones():
+    conexion = crear_conexion()
+
+    if request.method == "POST":
+        # Captura de datos del formulario
+        titulo = request.form["titulo"]
+        descripcion = request.form["descripcion"]
+        fecha = request.form["fecha"]
+        hora_inicio = request.form["hora_inicio"]
+        hora_fin = request.form["hora_fin"]
+        id_conferencia = request.form["id_conferencia"]
+
+        # Insertar en la base de datos
+        cursor = conexion.cursor()
+        query = """
+        INSERT INTO sesion (titulo, descripcion, fecha, hora_inicio, hora_fin, id_conferencia)
+        VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        cursor.execute(query, (titulo, descripcion, fecha, hora_inicio, hora_fin, id_conferencia))
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+
+        # Respuesta con redirección y alerta
+        return jsonify({"success": True, "redirect": "/index"})
+
+    else:
+        # Obtener las conferencias disponibles
+        cursor = conexion.cursor(dictionary=True)
+        query = "SELECT id_conferencia, nombre FROM conferencia"
+        cursor.execute(query)
+        conferencias = cursor.fetchall()
+        cursor.close()
+        conexion.close()
+
+        # Renderizar la plantilla de sesiones
+        return render_template("sesiones.html", conferencias=conferencias)
+
 if __name__ == "__main__":
     app.run(debug=True)
