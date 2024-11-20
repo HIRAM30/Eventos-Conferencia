@@ -137,3 +137,42 @@ footer {
     bottom: 0;
     width: 100%;
 }
+/* Estilo para la página de perfil */
+.perfil-card {
+    background-color: var(--color-fondo);
+    border: 2px solid var(--conferencias-color);
+    border-radius: 10px;
+    padding: 20px;
+    width: 60%;
+    margin: 0 auto;
+    text-align: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.perfil-info {
+    margin-bottom: 30px;
+}
+
+.perfil-info h2 {
+    font-size: 2em;
+    color: var(--sesiones-color);
+}
+
+.perfil-info p {
+    font-size: 1.2em;
+    margin: 10px 0;
+}
+
+.perfil-actions .btn-editar {
+    background-color: var(--sesiones-color);
+    color: var(--color-texto);
+    text-decoration: none;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.perfil-actions .btn-editar:hover {
+    background-color: var(--conferencias-color);
+}
