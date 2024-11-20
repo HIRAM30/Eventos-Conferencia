@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recuperar Contraseña</title>
+    <link rel="stylesheet" href="../static/inicio_sesion.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Panel para el formulario de recuperación de contraseña -->
+        <div class="right-panel">
+            <div class="login-container">
+                <h2>Recuperar Contraseña</h2>
+                <form action="{{ url_for('recuperar_contraseña') }}" method="POST">
+                    <div class="input-group">
+                        <label for="correo_electronico">Correo Electrónico</label>
+                        <input type="email" id="correo_electronico" name="correo_electronico" placeholder="Correo Electrónico" required>
+                    </div>
+
+                    <button type="submit" class="login-button">Recuperar Contraseña</button>
+                </form>
+                
+                <div class="additional-options">
+                    <a href="/login" class="recover-link">Volver al inicio de sesión</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
