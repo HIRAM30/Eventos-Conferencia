@@ -3,12 +3,19 @@ import sqlite3
 from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
 from crud_usuario import insertar_usuario, obtener_usuario_por_nombre_usuario, obtener_usuario_por_id, enviar_email_restablecimiento
 from werkzeug.security import check_password_hash
+from flask_wtf import FlaskForm
+import pytz
+from datetime import datetime
+from wtforms import StringField, TextAreaField, DateField, TimeField, SelectField, SubmitField
+from wtforms.validators import DataRequired
 from crud_usuario import actualizar_contraseña 
 from crud_usuario import obtener_usuarios
 from db_conector import crear_conexion
+
 from config import mail
 from itsdangerous import URLSafeTimedSerializer
-
+mexico_time_zone = pytz.timezone('America/Mexico_City')
+mexico_time = datetime.now(mexico_time_zone)
 app = Flask(__name__)
 app.secret_key = "clave_secreta"  # Esta es tu clave secreta
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:tu_contraseña@localhost/conferencias'
@@ -194,6 +201,54 @@ def obtener_eventos():
 
     print("Eventos obtenidos de la base de datos:", eventos)  # Depuración
     return jsonify(eventos)
+
+#----------------------------------------------------------------------------------------------------------------------------------------------
+@app.route('/api/conferences', methods=['GET'])
+def get_conferences():
+    """ Devuelve las conferencias para la fecha proporcionada. """
+    date_str = request.args.get('date')
+    if not date_str:
+        return jsonify({'error': 'Fecha no proporcionada'}), 400
+
+    try:
+        selected_date = datetime.strptime(date_str, '%Y-%m-%d').date()
+
+        filtered_conferences = [
+            conference for conference in conferences if conference["date"] == date_str
+        ]
+        return jsonify(filtered_conferences)
+
+    except ValueError:
+        return jsonify({'error': 'Formato de fecha no válido. Usa YYYY-MM-DD'}), 400
+
+@app.route('/api/events', methods=['GET'])
+def get_events():
+    date_filter = request.args.get('date')  # Fecha seleccionada
+    if date_filter:
+        filtered_events = [conf for conf in conferencias if conf["start"].startswith(date_filter)]
+        return jsonify(filtered_events)
+    return jsonify(conferencias)
+
+@app.route('/api/sessions', methods=['GET'])
+def get_sessions():
+    """ Devuelve las sesiones de una conferencia. """
+    conference_id = request.args.get('conference_id')
+    if not conference_id:
+        return jsonify({'error': 'ID de conferencia no proporcionado'}), 400
+
+    try:
+        conference_id = int(conference_id)
+        related_sessions = [
+            session for session in sessions if session["conference_id"] == conference_id
+        ]
+        return jsonify(related_sessions)
+
+    except ValueError:
+        return jsonify({'error': 'ID de conferencia no válido'}), 400
+
+
+
+
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 @app.route('/conferencias', methods=['GET'])
@@ -414,48 +469,59 @@ def eliminar_usuario(id_usuario):
     flash("Usuario eliminado exitosamente", "success")
     return redirect(url_for('ver_usuarios_admin'))
 
-if __name__ == "__main__":
-    app.run(debug=True)
-<<<<<<< HEAD
-=======
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
-@app.route('/sesiones', methods=["GET", "POST"])
-def sesiones():
+
+# Formulario para agregar sesión
+class SesionForm(FlaskForm):
+    titulo = StringField('Título de la sesión', validators=[DataRequired()])
+    descripcion = TextAreaField('Descripción', validators=[DataRequired()])
+    fecha = DateField('Fecha', validators=[DataRequired()])
+    hora_inicio = TimeField('Hora de inicio', validators=[DataRequired()])
+    hora_fin = TimeField('Hora de fin', validators=[DataRequired()])
+    conferencia = SelectField('Conferencia Asociada', coerce=int, validators=[DataRequired()])
+    submit = SubmitField('Guardar Sesión')
+
+# Ruta para agregar sesión
+@app.route('/sesiones', methods=['GET', 'POST'])
+def agregar_sesion():
+    # Conexión y consulta de conferencias
     conexion = crear_conexion()
+    cursor = conexion.cursor(dictionary=True)
+    cursor.execute("SELECT id_conferencia, nombre FROM conferencia")
+    conferencias = cursor.fetchall()
+    cursor.close()
+    conexion.close()
 
-    if request.method == "POST":
-        # Captura de datos del formulario
-        titulo = request.form["titulo"]
-        descripcion = request.form["descripcion"]
-        fecha = request.form["fecha"]
-        hora_inicio = request.form["hora_inicio"]
-        hora_fin = request.form["hora_fin"]
-        id_conferencia = request.form["id_conferencia"]
+    # Inicializar formulario
+    form = SesionForm()
 
-        # Insertar en la base de datos
+    # Llenar el campo de conferencia con las opciones obtenidas
+    form.conferencia.choices = [(conferencia['id_conferencia'], conferencia['nombre']) for conferencia in conferencias]
+
+    # Si el formulario es enviado
+    if form.validate_on_submit():
+        titulo = form.titulo.data
+        descripcion = form.descripcion.data
+        fecha = form.fecha.data
+        hora_inicio = form.hora_inicio.data
+        hora_fin = form.hora_fin.data
+        id_conferencia = form.conferencia.data
+
+        # Guardar la sesión en la base de datos
+        conexion = crear_conexion()
         cursor = conexion.cursor()
-        query = """
-        INSERT INTO sesion (titulo, descripcion, fecha, hora_inicio, hora_fin, id_conferencia)
-        VALUES (%s, %s, %s, %s, %s, %s)
-        """
-        cursor.execute(query, (titulo, descripcion, fecha, hora_inicio, hora_fin, id_conferencia))
+        cursor.execute("""
+            INSERT INTO sesion (titulo, descripcion, fecha, hora_inicio, hora_fin, id_conferencia)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (titulo, descripcion, fecha, hora_inicio, hora_fin, id_conferencia))
         conexion.commit()
         cursor.close()
         conexion.close()
 
-        # Respuesta con redirección y alerta
-        return jsonify({"success": True, "redirect": "/index"})
+        # Redirigir a la misma página después de agregar la sesión
+        return redirect(url_for('agregar_sesion'))
 
-    else:
-        # Obtener las conferencias disponibles
-        cursor = conexion.cursor(dictionary=True)
-        query = "SELECT id_conferencia, nombre FROM conferencia"
-        cursor.execute(query)
-        conferencias = cursor.fetchall()
-        cursor.close()
-        conexion.close()
-
-        # Renderizar la plantilla de sesiones
-    return render_template("sesiones.html", conferencias=conferencias)
->>>>>>> ba449e752d00048e022ea3fea39264c6ec72d315
+    return render_template('sesiones.html', form=form)
+if __name__ == "__main__":
+    app.run(debug=True)
