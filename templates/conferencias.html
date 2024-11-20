@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Calendario de Conferencias</title>
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="/static/styles.css">
+    <link rel="stylesheet" href="../static/conferencias.css">
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
 </head>
 <body>
@@ -24,6 +24,9 @@
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
                 events: '/api/events', // Endpoint de Flask
+                eventsSet: function (events) {
+                    console.log('Eventos cargados:', events); // Depuración
+                },
                 eventClick: function (info) {
                     alert(`Título: ${info.event.title}\nDescripción: ${info.event.extendedProps.description}`);
                 }
