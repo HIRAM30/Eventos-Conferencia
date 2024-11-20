@@ -4,7 +4,7 @@
     --sesiones-color: #036280;    /* Azul medio */
     --inscripciones-color: #7D3C98; /* Morado */
     --usuarios-color: #2C3E50;    /* Gris oscuro */
-    --color-fondo: #E8EDE7;       /* Fondo claro */
+    --color-fondo: ##ffffff;       /* Fondo claro */
     --color-texto: #FFFFFF;
     --color-hover: #FFB84D;       /* Naranja */
 }
@@ -175,4 +175,29 @@ footer {
 
 .perfil-actions .btn-editar:hover {
     background-color: var(--conferencias-color);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+table th, table td {
+    border: 1px solid var(--conferencias-color);
+    padding: 10px;
+    text-align: center;
+}
+
+table th {
+    background-color: var(--usuarios-color);
+    color: var(--color-texto);
+}
+
+table tr:nth-child(even) {
+    background-color: var(--color-fondo);
+}
+
+table tr:hover {
+    background-color: var(--color-hover);
+    cursor: pointer;
 }

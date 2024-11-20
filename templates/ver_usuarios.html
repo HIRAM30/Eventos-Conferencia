@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Usuarios</title>
+    <link rel="stylesheet" href="../static/index.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <style>
+        /* Estilos generales de la página */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f9f9f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background-color: #012E4A;
+            padding: 10px 0;
+            text-align: center;
+            color: white;
+        }
+
+        header nav ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        header nav ul li {
+            display: inline;
+            margin: 0 10px;
+        }
+
+        header nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-size: 16px;
+        }
+
+        .content {
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #012E4A;
+        }
+
+        .dashboard {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .perfil-card table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .perfil-card th, .perfil-card td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        .perfil-card th {
+            background-color: #5a6e8e;
+            color: white;
+        }
+
+        .perfil-card td a {
+            color: #0084ff;
+            text-decoration: none;
+        }
+
+        .perfil-card td a:hover {
+            text-decoration: underline;
+        }
+
+        /* Estilos para la ventana modal */
+        .modal {
+            display: none; /* Oculto por defecto */
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.4); /* Fondo semi-transparente */
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 10px;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        /* Formulario de edición */
+        .modal form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal form input,
+        .modal form select {
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .modal form button {
+            background-color: #012E4A;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .modal form button:hover {
+            background-color: #004b8c;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/perfil">Mi Perfil</a></li>
+                <li><a href="/logout">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <div class="content">
+        <h1>Gestión de Usuarios</h1>
+        <div class="dashboard">
+            <div class="perfil-card">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Tipo</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if usuarios %}
+                            {% for usuario in usuarios %}
+                                <tr>
+                                    <td>{{ usuario['id_usuario'] }}</td>
+                                    <td>{{ usuario['nombre_usuario'] }}</td>
+                                    <td>{{ usuario['correo_electronico'] }}</td>
+                                    <td>{{ usuario['tipo_usuario'] }}</td>
+                                    <td>
+                                        <!-- Botón para abrir el modal -->
+                                        <button class="edit-btn" data-id="{{ usuario['id_usuario'] }}" data-nombre="{{ usuario['nombre_usuario'] }}" data-correo="{{ usuario['correo_electronico'] }}" data-tipo="{{ usuario['tipo_usuario'] }}">Editar</button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5">No hay usuarios registrados.</td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<!-- Modal para editar usuario -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Editar Usuario</h2>
+        <!-- Accion del formulario actualizada -->
+        <form method="POST" id="editForm">
+            <input type="hidden" name="id_usuario" id="modal_id_usuario">
+            
+            <label for="nombre_usuario">Nombre:</label>
+            <input type="text" id="modal_nombre_usuario" name="nombre_usuario" required>
+
+            <label for="correo_electronico">Correo:</label>
+            <input type="email" id="modal_correo_electronico" name="correo_electronico" required>
+
+            <label for="tipo_usuario">Tipo de Usuario:</label>
+            <select id="modal_tipo_usuario" name="tipo_usuario" required>
+                <option value="asistente">Asistente</option>
+                <option value="organizador">Organizador</option>
+                <option value="admin">Administrador</option>
+            </select>
+
+            <button type="submit">Actualizar Usuario</button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Abrir el modal y rellenar con los datos del usuario
+    document.querySelectorAll('.edit-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const id = this.getAttribute('data-id');
+            const nombre = this.getAttribute('data-nombre');
+            const correo = this.getAttribute('data-correo');
+            const tipo = this.getAttribute('data-tipo');
+
+            document.getElementById('modal_id_usuario').value = id;
+            document.getElementById('modal_nombre_usuario').value = nombre;
+            document.getElementById('modal_correo_electronico').value = correo;
+            document.getElementById('modal_tipo_usuario').value = tipo;
+
+            // Actualizar la acción del formulario
+            const form = document.getElementById('editForm');
+            form.action = `/admin/editar_usuario/${id}`; // Establece la ruta dinámica para el formulario
+
+            document.getElementById('editModal').style.display = 'block';
+        });
+    });
+
+    // Cerrar el modal
+    document.querySelector('.close').addEventListener('click', function() {
+        document.getElementById('editModal').style.display = 'none';
+    });
+
+    // Cerrar el modal si se hace clic fuera de él
+    window.onclick = function(event) {
+        if (event.target === document.getElementById('editModal')) {
+            document.getElementById('editModal').style.display = 'none';
+        }
+    };
+</script>

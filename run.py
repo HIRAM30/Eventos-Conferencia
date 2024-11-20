@@ -4,6 +4,7 @@ from flask import Flask, render_template, request, redirect, url_for, flash, ses
 from crud_usuario import insertar_usuario, obtener_usuario_por_nombre_usuario, obtener_usuario_por_id, enviar_email_restablecimiento
 from werkzeug.security import check_password_hash
 from crud_usuario import actualizar_contraseña 
+from crud_usuario import obtener_usuarios
 from db_conector import crear_conexion
 from config import mail
 from itsdangerous import URLSafeTimedSerializer
@@ -62,6 +63,8 @@ def home():
             return redirect(url_for('organizador'))
         elif session['user_type'] == 'asistente':
             return redirect(url_for('asistente'))
+        elif session['user_type'] == 'admin':
+            return redirect(url_for('admin'))        
     
     # Si no está autenticado, mostramos la página home con el botón "Empezar"
     return render_template("home.html")  # Página de inicio con el botón de "Empezar"
@@ -108,10 +111,15 @@ def login():
                     flash("Inicio de sesión exitoso", "success")
 
                     # Redirigir al tipo de usuario
-                    if usuario['tipo_usuario'] == 'organizador':
+                    if usuario['tipo_usuario'] == 'admin':
+                        return redirect(url_for("admin"))  # Redirige al administrador
+                    elif usuario['tipo_usuario'] == 'organizador':
                         return redirect(url_for("organizador"))  # Redirige al organizador
-                    else:
+                    elif usuario['tipo_usuario'] == 'asistente':
                         return redirect(url_for("asistente"))  # Redirige al asistente
+                    else:
+                        flash("Tipo de usuario no reconocido", "error")
+                        return redirect(url_for("login"))  # En caso de error, redirigir al inicio de sesión
 
                 else:
                     print("Contraseña incorrecta")
@@ -191,6 +199,9 @@ def obtener_eventos():
 @app.route('/conferencias', methods=['GET'])
 def conferencias():
     return render_template("conferencias.html")
+
+#----------------------------------------------------------------------------------------------------------------------------------------------
+
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
@@ -308,7 +319,100 @@ def organizador():
     
     return render_template("index.html")  # Página principal del organizador
 
-if __name__ == "__main__":
-    app.run(debug=True)
+
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
+
+@app.route('/admin')
+def admin():
+    if 'user_id' not in session or session['user_type'] != 'admin':
+        flash("Acceso no autorizado", "error")
+        return redirect(url_for("login"))
+    return render_template("index_administrador.html")
+
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------
+
+@app.route('/ver_usuarios_admin', methods=['GET'])
+def ver_usuarios_admin():
+    # Verificamos si el usuario está autenticado y es un administrador
+    if 'user_id' not in session or session['user_type'] != 'admin':
+        flash("Acceso no autorizado", "error")
+        return redirect(url_for("login"))
+
+    # Usamos el CRUD para obtener los usuarios
+    usuarios = obtener_usuarios()
+
+    # Verificamos que los usuarios se hayan obtenido correctamente
+    if not usuarios:
+        flash("No se encontraron usuarios en la base de datos.", "warning")
+
+    # Pasamos los usuarios a la plantilla
+    return render_template("ver_usuarios.html", usuarios=usuarios)
+
+#----------------------------------------------------------------------------------------------------------------------------------------------
+
+@app.route('/admin/editar_usuario/<int:id_usuario>', methods=['GET', 'POST'])
+def editar_usuario(id_usuario):
+    # Verificamos si el usuario está autenticado y es un administrador
+    if 'user_id' not in session or session['user_type'] != 'admin':
+        flash("Acceso no autorizado", "error")
+        return redirect(url_for("login"))
+
+    # Obtener los datos del usuario a editar
+    conexion = crear_conexion()
+    cursor = conexion.cursor(dictionary=True)
+    query = "SELECT * FROM usuario WHERE id_usuario = %s"
+    cursor.execute(query, (id_usuario,))
+    usuario = cursor.fetchone()
+    cursor.close()
+    conexion.close()
+
+    if request.method == 'POST':
+        nombre_usuario = request.form['nombre_usuario']
+        correo_electronico = request.form['correo_electronico']
+        tipo_usuario = request.form['tipo_usuario']
+
+        # Actualizar los datos en la base de datos
+        conexion = crear_conexion()
+        cursor = conexion.cursor()
+        query = """
+            UPDATE usuario 
+            SET nombre_usuario = %s, correo_electronico = %s, tipo_usuario = %s 
+            WHERE id_usuario = %s
+        """
+        cursor.execute(query, (nombre_usuario, correo_electronico, tipo_usuario, id_usuario))
+        conexion.commit()
+        cursor.close()
+        conexion.close()
+
+        flash("Usuario actualizado exitosamente", "success")
+        return redirect(url_for('ver_usuarios_admin'))
+
+    return render_template("editar_usuario.html", usuario=usuario)
+
+
+#----------------------------------------------------------------------------------------------------------------------------------------------
+
+@app.route('/admin/eliminar_usuario/<int:id_usuario>', methods=['GET'])
+def eliminar_usuario(id_usuario):
+    # Verificamos si el usuario está autenticado y es un administrador
+    if 'user_id' not in session or session['user_type'] != 'admin':
+        flash("Acceso no autorizado", "error")
+        return redirect(url_for("login"))
+
+    # Eliminar el usuario de la base de datos
+    conexion = crear_conexion()
+    cursor = conexion.cursor()
+    query = "DELETE FROM usuario WHERE id_usuario = %s"
+    cursor.execute(query, (id_usuario,))
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+
+    flash("Usuario eliminado exitosamente", "success")
+    return redirect(url_for('ver_usuarios_admin'))
+
+if __name__ == "__main__":
+    app.run(debug=True)
