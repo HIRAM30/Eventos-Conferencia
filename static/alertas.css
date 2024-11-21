@@ -1,0 +1,56 @@
+/* Estilo para las alertas flotantes */
+.alerta {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: var(--inscripciones-color);
+    color: var(--color-texto);
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-size: 1.1em;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.5s, top 0.5s;
+    max-width: 300px;
+    width: 100%;
+    display: none; /* Inicialmente oculta */
+}
+
+.alerta.show {
+    opacity: 1;
+    top: 20px;  /* Puede ajustarse si quieres que la alerta esté más arriba o más abajo */
+    display: block; /* Se muestra cuando tiene la clase 'show' */
+}
+
+.alerta .close-btn {
+    background-color: var(--color-hover);
+    color: var(--color-texto);
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+}
+
+.alerta .close-btn:hover {
+    background-color: var(--conferencias-color);
+}
+
+/* Variantes para distintos tipos de alertas */
+.alerta.success {
+    background-color: #28a745; /* Verde para éxito */
+}
+
+.alerta.error {
+    background-color: #dc3545; /* Rojo para error */
+}
+
+.alerta.info {
+    background-color: #17a2b8; /* Azul para información */
+}
+
+.alerta.warning {
+    background-color: #ffc107; /* Amarillo para advertencia */
+}

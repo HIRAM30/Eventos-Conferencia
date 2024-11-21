@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crear Conferencia</title>
+    <link rel="stylesheet" href="../static/index.css">
+    <link rel="stylesheet" href="../static/sesiones.css">
+    <link rel="stylesheet" href="../static/conferencias.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/perfil">Mi Perfil</a></li>
+                <li><a href="/logout">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <section class="content">
+        <h1>Crear Conferencia</h1>
+        <p>Rellena el formulario para agregar una nueva conferencia al sistema.</p>
+
+        <!-- Formulario de crear conferencia -->
+        <div class="form-container">
+            <h2>Formulario</h2>
+            <form method="POST" action="/conferencia2">
+                {{ form.hidden_tag() }}  <!-- Para proteger contra CSRF -->
+                <label for="nombre">Nombre de la conferencia:</label>
+                {{ form.nombre(class="form-control") }}
+
+                <label for="descripcion">Descripción:</label>
+                {{ form.descripcion(class="form-control") }}
+
+                <label for="fecha_inicio">Fecha de inicio:</label>
+                {{ form.fecha_inicio(class="form-control") }}
+
+                <label for="fecha_fin">Fecha de fin:</label>
+                {{ form.fecha_fin(class="form-control") }}
+
+                <button type="submit">Crear Conferencia</button>
+            </form>
+            <a href="{{ url_for(session['user_type']) }}" class="back-link">Volver al inicio</a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Sistema de Conferencias</p>
+    </footer>
+</body>
+</html>

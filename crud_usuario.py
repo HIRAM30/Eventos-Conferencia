@@ -28,8 +28,7 @@ def insertar_usuario(nombre_usuario, correo_electronico, contraseña, tipo_usuar
 def obtener_usuario_por_nombre_usuario(nombre_usuario):
     conexion = crear_conexion()
     cursor = conexion.cursor(dictionary=True)
-    query = "SELECT * FROM usuario WHERE correo_electronico = %s"
-    cursor.execute(query, (nombre_usuario,))
+    cursor.execute("SELECT id_usuario, correo_electronico, tipo_usuario, contraseña FROM usuario WHERE correo_electronico = %s", (nombre_usuario,))
     usuario = cursor.fetchone()
     cursor.close()
     conexion.close()
@@ -103,3 +102,72 @@ def obtener_usuarios():
     return usuarios
 
 
+def insertar_conferencia(nombre, descripcion, fecha_inicio, fecha_fin, id_usuario):
+    # Aquí va el código para insertar en la base de datos
+    conexion = crear_conexion()
+    cursor = conexion.cursor()
+    query = """
+    INSERT INTO conferencia (nombre, descripcion, fecha_inicio, fecha_fin, id_organizador)
+    VALUES (%s, %s, %s, %s, %s)
+    """
+    cursor.execute(query, (nombre, descripcion, fecha_inicio, fecha_fin, id_usuario))
+    conexion.commit()
+    cursor.close()
+    conexion.close()
+    return True  # O el valor correspondiente según el resultado de la inserción
+
+
+def obtener_conferencias():
+    # Simulando datos de conferencias desde la base de datos
+    return [
+        {
+            "id": 1,
+            "title": "Conferencia de Ciencia",
+            "start": "2024-11-25T09:00:00",
+            "end": "2024-11-25T17:00:00",
+            "description": "Una conferencia sobre los avances en la ciencia."
+        },
+        {
+            "id": 2,
+            "title": "Conferencia de Tecnología",
+            "start": "2024-11-26T10:00:00",
+            "end": "2024-11-26T16:00:00",
+            "description": "Una conferencia sobre el futuro de la tecnología."
+        }
+    ]
+
+def obtener_sesiones_por_conferencia(conference_id):
+    # Simulando datos de sesiones
+    if conference_id == 1:
+        return [
+            {
+                "id": 1,
+                "title": "Sesión sobre física cuántica",
+                "start": "2024-11-25T10:00:00",
+                "end": "2024-11-25T12:00:00",
+                "description": "Una introducción a la física cuántica."
+            },
+            {
+                "id": 2,
+                "title": "Sesión sobre biología molecular",
+                "start": "2024-11-25T13:00:00",
+                "end": "2024-11-25T15:00:00",
+                "description": "Exploración de los conceptos de la biología molecular."
+            }
+        ]
+    elif conference_id == 2:
+        return [
+            {
+                "id": 3,
+                "title": "Sesión sobre Inteligencia Artificial",
+                "start": "2024-11-26T11:00:00",
+                "end": "2024-11-26T13:00:00",
+                "description": "Exploración de la IA y su impacto en la sociedad."
+            }
+        ]
+    return []
+
+def registrar_usuario_en_sesion(user_id, session_id):
+    # Aquí puedes agregar la lógica para registrar al usuario en la sesión (por ejemplo, en la base de datos)
+    # Para este ejemplo, simplemente retornamos True para simular una inscripción exitosa.
+    return True

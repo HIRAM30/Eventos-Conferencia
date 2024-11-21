@@ -6,89 +6,11 @@
     <title>Calendario de Conferencias</title>
     <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.css" rel="stylesheet">
     <link rel="stylesheet" href="../static/conferencias.css">
+    <link rel="stylesheet" href="../static/modal.css">
+    <link rel="stylesheet" href="../static/alertas.css">
+    <script src="../static/alertas.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js"></script>
-
-    <style>
-        /* Estilos del modal */
-        .modal {
-            display: none; /* Oculto por defecto */
-            position: fixed; /* Fijo en la pantalla */
-            z-index: 1; /* Asegura que el modal esté encima de otros elementos */
-            padding-top: 100px;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.4);
-        }
-
-        .modal-content {
-            background-color: #fefefe;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .close {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .btn-close {
-            display: inline-block;
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #1a252f;
-            color: white;
-            text-decoration: none;
-            border-radius: 5px;
-            text-align: center;
-        }
-
-        /* Estilos para las sesiones */
-        .session-item {
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #f4f4f4;
-            border-radius: 5px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .session-item h3 {
-            margin: 0;
-            font-size: 1.2em;
-            color: #333;
-        }
-
-        .session-item p {
-            margin: 5px 0;
-            color: #666;
-        }
-
-        .session-item .session-time {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .session-item .session-date {
-            font-style: italic;
-            color: #888;
-        }
-    </style>
 </head>
 <body>
     <div id="calendar-container">
@@ -106,7 +28,21 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2 id="modal-title">Sesiones</h2>
-            <div id="session-details"></div>
+            <div id="session-details">
+                <!-- Aquí se cargan las sesiones cuando se hace clic en una conferencia -->
+            </div>
+            
+            <!-- Calendario de sesiones (esto es opcional, si decides mostrarlo abajo o en un modal aparte) -->
+            <div class="calendar">
+                <!-- Ciclo por todas las sesiones para mostrarlas -->
+                {% for session in sessions %}
+                <div class="session">
+                    <p>{{ session.titulo }} ({{ session.fecha }})</p>
+                    <button onclick="inscribe(session.id_sesion)">Inscribir</button>
+                </div>
+                {% endfor %}
+            </div>
+
             <a href="javascript:void(0)" class="btn-close" onclick="closeModal()">Cerrar</a>
         </div>
     </div>
@@ -121,61 +57,108 @@
                     center: 'title',
                     right: 'dayGridMonth,timeGridWeek,timeGridDay'
                 },
-                events: '/api/events', // Endpoint de Flask para cargar eventos
-
-                // Cuando se hace clic en una fecha
-                dateClick: function(info) {
-                    const selectedDate = info.dateStr; // Fecha seleccionada en formato YYYY-MM-DD
-
-                    // Realiza una solicitud AJAX para obtener las sesiones para esa fecha
-                    fetch(`/api/events?date=${selectedDate}`)
+                events: function(info, successCallback, failureCallback) {
+                    // Obtener las conferencias y sesiones
+                    fetch('/api/conferences')
                         .then(response => response.json())
-                        .then(events => {
+                        .then(data => {
+                            const events = data.map(conferencia => ({
+                                title: conferencia.title,
+                                start: conferencia.start, 
+                                end: conferencia.end, 
+                                description: conferencia.description,
+                                extendedProps: { description: conferencia.description, conference_id: conferencia.id }
+                            }));
+                            successCallback(events); // Pasa los eventos a FullCalendar
+                        })
+                        .catch(error => failureCallback(error));
+                },
+    
+                // Al hacer clic en una conferencia
+                eventClick: function(info) {
+                    const conferenceId = info.event.extendedProps.conference_id; // ID de la conferencia
+    
+                    // Realizar una solicitud para obtener las sesiones de esa conferencia
+                    fetch(`/api/sessions?conference_id=${conferenceId}`)
+                        .then(response => response.json())
+                        .then(sessions => {
                             let sessionDetails = '';
-                            if (events.length > 0) {
-                                // Muestra las sesiones en formato de lista
-                                sessionDetails = events.map(event => 
-                                    `<div class="session-item">
-                                        <h3>${event.title}</h3>
-                                        <p class="session-date"><strong>Fecha:</strong> ${event.start.split('T')[0]}</p>
-                                        <p class="session-time"><strong>Hora de inicio:</strong> ${event.start.split('T')[1]}</p>
-                                        <p class="session-time"><strong>Hora de fin:</strong> ${event.end.split('T')[1]}</p>
-                                        <p><strong>Descripción:</strong> ${event.description}</p>
-                                    </div>`
-                                ).join('');
+                            if (sessions.length > 0) {
+                                sessionDetails = sessions.map(session => `
+                                    <div class="session-item">
+                                        <h3>${session.title}</h3>
+                                        <p><strong>Fecha:</strong> ${session.start.split('T')[0]}</p>
+                                        <p><strong>Hora de inicio:</strong> ${session.start.split('T')[1]}</p>
+                                        <p><strong>Hora de fin:</strong> ${session.end.split('T')[1]}</p>
+                                        <p><strong>Descripción:</strong> ${session.description}</p>
+                                        <button onclick="inscribe(${session.id})">Inscribirse</button>
+                                    </div>
+                                `).join('');
                             } else {
-                                sessionDetails = `<p>No hay sesiones para esta fecha.</p>`;
+                                sessionDetails = `<p>No hay sesiones para esta conferencia.</p>`;
                             }
-                            
+    
                             // Mostrar las sesiones en el modal
                             document.getElementById('session-details').innerHTML = sessionDetails;
-                            document.getElementById('modal-title').innerText = `Sesiones para ${selectedDate}`;
+                            document.getElementById('modal-title').innerText = `Sesiones de ${info.event.title}`;
                             openModal();
                         })
                         .catch(error => console.error('Error al cargar las sesiones:', error));
-                },
-
-                // Al hacer clic en un evento en el calendario
-                eventClick: function (info) {
-                    alert(`Título: ${info.event.title}\nDescripción: ${info.event.extendedProps.description}`);
                 }
             });
-
+    
             calendar.render();
         });
-
+    
         // Función para abrir el modal
         function openModal() {
             document.getElementById("myModal").style.display = "block";
         }
-
+    
         // Función para cerrar el modal
         function closeModal() {
             document.getElementById("myModal").style.display = "none";
         }
-
+    
         // Cerrar el modal cuando el usuario haga clic en "x"
         document.querySelector('.close').addEventListener('click', closeModal);
+    
+        // Función para inscribir al usuario en una sesión
+        function inscribe(sessionId) {
+            // Obtener el ID del usuario dinámicamente desde el backend
+            fetch('/api/user')
+                .then(response => response.json())
+                .then(data => {
+                    const userId = data.user_id;
+    
+                    if (!userId) {
+                        alert('Debes iniciar sesión para inscribirte.');
+                        return;
+                    }
+    
+                    fetch('/api/inscribe', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ id_usuario: userId, id_sesion: sessionId })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            showAlert(data.message, 'success');
+                        } else if(dat.message){
+                            showAlert(data.error, 'error'); 
+                        }
+                    })
+                    .catch(error => {
+                        showAlert('Ocurrió un error, por favor intenta nuevamente.', 'error');
+                    });
+                })
+                .catch(error => {
+                    console.error('Error al obtener el usuario:', error);
+                });
+        }
     </script>
 </body>
 </html>

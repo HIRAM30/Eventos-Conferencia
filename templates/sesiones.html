@@ -4,38 +4,57 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agregar Sesión</title>
-    <link rel="stylesheet" href="../static/sesiones.css">
     <link rel="stylesheet" href="../static/index.css">
+    <link rel="stylesheet" href="../static/sesiones.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 </head>
 <body>
-    <div class="form-container">
+    <header>
+        <nav>
+            <ul>
+                <li><a href="/">Inicio</a></li>
+                <li><a href="/perfil">Mi Perfil</a></li>
+                <li><a href="/logout">Cerrar Sesión</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <section class="content">
         <h1>Agregar Sesión</h1>
-        <!-- Formulario -->
-        <form method="POST" action="/sesiones">
-            {{ form.hidden_tag() }}
-            <label for="titulo">Título de la sesión</label>
-            {{ form.titulo(class="form-control") }}
+        <p>Rellena el formulario para añadir una nueva sesión al sistema.</p>
 
-            <label for="descripcion">Descripción</label>
-            {{ form.descripcion(class="form-control") }}
+        <!-- Formulario de agregar sesión -->
+        <div class="form-container">
+            <h2>Formulario</h2>
+            <form method="POST" action="/sesiones">
+                {{ form.hidden_tag() }}
+                <label for="titulo">Título de la sesión</label>
+                {{ form.titulo(class="form-control") }}
 
-            <label for="fecha">Fecha</label>
-            {{ form.fecha(class="form-control") }}
+                <label for="descripcion">Descripción</label>
+                {{ form.descripcion(class="form-control") }}
 
-            <label for="hora_inicio">Hora de inicio</label>
-            {{ form.hora_inicio(class="form-control") }}
+                <label for="fecha">Fecha</label>
+                {{ form.fecha(class="form-control") }}
 
-            <label for="hora_fin">Hora de fin</label>
-            {{ form.hora_fin(class="form-control") }}
+                <label for="hora_inicio">Hora de inicio</label>
+                {{ form.hora_inicio(class="form-control") }}
 
-            <label for="conferencia">Conferencia Asociada</label>
-            {{ form.conferencia(class="form-control") }}
+                <label for="hora_fin">Hora de fin</label>
+                {{ form.hora_fin(class="form-control") }}
 
-            <button type="submit">Guardar Sesión</button>
-        </form>
+                <label for="conferencia">Conferencia Asociada</label>
+                {{ form.conferencia(class="form-control") }}
 
-        <!-- Enlace para regresar -->
-        <a href="{{ url_for('admin') }}" class="back-link">Regresar</a>
-    </div>
+                <button type="submit">Guardar Sesión</button>
+            </form>
+            <a href="{{ url_for('admin') }}" class="back-link">Regresar</a>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2024 Sistema de Conferencias</p>
+    </footer>
 </body>
 </html>
