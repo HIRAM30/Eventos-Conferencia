@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ver Sesiones</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='sesiones.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Sesiones</h1>
+        <table border="1">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Descripción</th>
+                    <th>Fecha</th>
+                    <th>Hora de Inicio</th>
+                    <th>Hora de Fin</th>
+                    <th>Conferencia</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sesion in sesiones %}
+                <tr>
+                    <td>{{ sesion.id_sesion }}</td>
+                    <td>{{ sesion.titulo }}</td>
+                    <td>{{ sesion.descripcion }}</td>
+                    <td>{{ sesion.fecha }}</td>
+                    <td>{{ sesion.hora_inicio }}</td>
+                    <td>{{ sesion.hora_fin }}</td>
+                    <td>{{ sesion.conferencia }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="/index" class="back-link">Regresar</a>
+    </div>
+</body>
+</html>
