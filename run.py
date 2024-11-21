@@ -1,11 +1,8 @@
+
 import sqlite3
-<<<<<<< HEAD
 from flask import Flask, render_template, redirect, url_for, flash, session, jsonify, request
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from crud_usuario import insertar_usuario, obtener_usuario_por_nombre_usuario, obtener_usuario_por_id, enviar_email_restablecimiento, insertar_conferencia
-=======
-from flask import Flask, render_template, request, redirect, url_for, flash, session, jsonify
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
 from werkzeug.security import check_password_hash
 from flask_wtf import FlaskForm
 from flask_sqlalchemy import SQLAlchemy
@@ -21,17 +18,18 @@ from crud_usuario import obtener_usuarios
 from db_conector import crear_conexion
 from config import mail
 from itsdangerous import URLSafeTimedSerializer
-
+mexico_time_zone = pytz.timezone('America/Mexico_City')
+mexico_time = datetime.now(mexico_time_zone)
 app = Flask(__name__)
 app.secret_key = "clave_secreta"  # Esta es tu clave secreta
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:@localhost/conferencias'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
-app.config['MAIL_PORT'] = 587
-app.config['MAIL_USE_TLS'] = True
-app.config['MAIL_USE_SSL'] = False
-app.config['MAIL_USERNAME'] = 'toral.carrera.yair@gmail.com'
-app.config['MAIL_PASSWORD'] = 'urjz gweo uach kymn'
+app.config['MAIL_PORT'] = 587  # Usa el puerto 587 para TLS o 465 para SSL
+app.config['MAIL_USE_TLS'] = True  # Habilita TLS
+app.config['MAIL_USE_SSL'] = False  # Asegúrate de que SSL está deshabilitado si usas TLS
+app.config['MAIL_USERNAME'] = 'toral.carrera.yair@gmail.com'  # Tu dirección de correo de Gmail
+app.config['MAIL_PASSWORD'] = 'urjz gweo uach kymn'  # Contraseña de Gmail o contraseña de aplicación
 app.config['MAIL_DEFAULT_SENDER'] = 'toral.carrera.yair@gmail.com'
 db = SQLAlchemy(app)
 # Instancia de generador de tokens
@@ -112,6 +110,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))  # Ajusta esto a tu modelo de datos
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
+# Ruta para enviar un correo
 @app.route("/enviar_correo", methods=["POST"])
 def enviar_correo():
     if request.method == "POST":
@@ -132,13 +131,15 @@ def enviar_correo():
             flash(f"Error al enviar el correo: {e}", "error")
             return redirect('/')
 
+
 #----------------------------------------------------------------------------------------------------------------------------------------------
+
 
 @app.route('/')
 def home():
     # Verificamos si el usuario está autenticado
     if 'user_id' in session:
-        # Redirigimos según el tipo de usuario
+        # Si ya está autenticado, redirigimos al dashboard correspondiente
         if session['user_type'] == 'organizador':
             return redirect(url_for('organizador'))
         elif session['user_type'] == 'asistente':
@@ -146,21 +147,21 @@ def home():
         elif session['user_type'] == 'admin':
             return redirect(url_for('admin'))        
     
-    # Si no está autenticado, mostramos la página home
+    # Si no está autenticado, mostramos la página home con el botón "Empezar"
     return render_template("home.html")  # Página de inicio con el botón de "Empezar"
+# Evitar que las páginas se almacenen en caché
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 @app.after_request
 def no_cache(response):
-    response.cache_control.no_store = True
-    response.headers['Pragma'] = 'no-cache'
-    response.headers['Expires'] = '0'
+    response.cache_control.no_store = True  # Evita que la página se almacene en caché
+    response.headers['Pragma'] = 'no-cache'  # Esto también ayuda con navegadores antiguos
+    response.headers['Expires'] = '0'  # Previene la caché de contenido viejo
     return response
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
-<<<<<<< HEAD
 
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
@@ -168,20 +169,21 @@ def no_cache(response):
 from flask import Flask, request, render_template, redirect, url_for, session, flash
 from werkzeug.security import check_password_hash
 
-=======
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
 @app.route('/login', methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        nombre_usuario = request.form["correo"]
+        # Recibimos los datos del formulario
+        nombre_usuario = request.form["correo"]  # Lo tratamos como nombre de usuario
         contraseña = request.form["contraseña"]
 
         # Verificamos si el usuario existe
         usuario = obtener_usuario_por_nombre_usuario(nombre_usuario)  # Esta función debe devolver un dict o un objeto
 
         if usuario:
+            # Mostrar en consola el usuario obtenido para depuración
+            print("Usuario obtenido:", usuario)  # Verificamos qué contiene 'usuario'
+
             # Comprobamos si la contraseña es correcta
-<<<<<<< HEAD
             if 'id_usuario' in usuario:
                 if check_password_hash(usuario['contraseña'], contraseña):
                     # Aquí usas el modelo User para crear el objeto
@@ -191,47 +193,34 @@ def login():
                     session['user_id'] = user.id
                     session['user_type'] = user.user_type
                     print("ID de usuario guardado en la sesión:", session['user_id'])  # Depuración
-=======
-            if check_password_hash(usuario['contraseña'], contraseña):
-                # Guardamos los datos del usuario en la sesión
-                session['user_id'] = usuario['id_usuario']
-                session['user_type'] = usuario['tipo_usuario']
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
 
-                flash("Inicio de sesión exitoso", "success")
+                    # Mensaje de éxito
+                    flash("Inicio de sesión exitoso", "success")
 
                     # Redirigir al tipo de usuario
-<<<<<<< HEAD
                     if user.user_type == 'admin':
                         return redirect(url_for("admin"))  # Redirige al administrador
                     elif user.user_type == 'organizador':
                         return redirect(url_for("organizador"))  # Redirige al organizador
                     elif user.user_type == 'asistente':
                         return redirect(url_for("asistente"))  # Redirige al asistente
-=======
-                    if usuario['tipo_usuario'] == 'organizador':
-                        return redirect(url_for("organizador"))  # Redirige al organizador
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
                     else:
-                        return redirect(url_for("asistente"))  # Redirige al asistente
+                        flash("Tipo de usuario no reconocido", "error")
+                        return redirect(url_for("login"))  # En caso de error, redirigir al inicio de sesión
 
                 else:
-                    return redirect(url_for("asistente"))
-
+                    print("Contraseña incorrecta")
+                    flash("Contraseña incorrecta", "error")
             else:
-                flash("Contraseña incorrecta", "error")
+                print("No se encontró 'id_usuario' en el usuario")
+                flash("Usuario mal formado", "error")
         else:
             flash("Usuario no encontrado", "error")
 
     return render_template("inicio_sesion.html")
 
-<<<<<<< HEAD
 
 #////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-=======
-#----------------------------------------------------------------------------------------------------------------------------------------------
-
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
 @app.route('/registro_usuario', methods=["GET", "POST"])
 def registro_usuario():
     if request.method == "POST":
@@ -286,7 +275,6 @@ def obtener_eventos():
 
     print("Eventos obtenidos de la base de datos:", eventos)  # Depuración
     return jsonify(eventos)
-<<<<<<< HEAD
 #----------------------------------------------------------------------------------------------------------------------------------------------
 @app.route('/api/conferenias', methods=['GET'])
 def get_conferencias():
@@ -409,8 +397,6 @@ def get_conferences():
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     
-=======
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
     
@@ -453,30 +439,29 @@ def get_user_registrations():
 @app.route('/conferencias', methods=['GET'])
 def conferencias():
     return render_template("conferencias.html")
-<<<<<<< HEAD
 #----------------------------------------------------------------------------------------------------------------------------------------------
-=======
-
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 @app.route('/perfil')
 def perfil():
+    # Verificamos si el usuario está autenticado
     if 'user_id' not in session:
         flash("Por favor, inicia sesión primero", "error")
         return redirect(url_for("login"))
+
+    # Verificar si 'user_id' está en la sesión
+    print("User ID en la sesión:", session.get('user_id'))  # Depuración
     
-    # Obtener los datos del usuario desde la base de datos
-    usuario = obtener_usuario_por_id(session['user_id'])
+    # Obtener el ID del usuario desde la sesión
+    user_id = session['user_id']
+    
+    # Consultar los datos del usuario en la base de datos
+    usuario = obtener_usuario_por_id(user_id)
     if not usuario:
         flash("No se pudieron obtener los datos del usuario", "error")
         return redirect(url_for("login"))
     
     return render_template("perfil.html", usuario=usuario)
-<<<<<<< HEAD
-=======
-
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
 #----------------------------------------------------------------------------------------------------------------------------------------------
 @app.route('/recuperar_contraseña', methods=['GET', 'POST'])
 def recuperar_contraseña():
@@ -496,8 +481,8 @@ def recuperar_contraseña():
 @app.route('/restablecer_contraseña/<token>', methods=['GET', 'POST'])
 def restablecer_contraseña(token):
     try:
-        correo_electronico = serializer.loads(token, salt="reset-password", max_age=3600)
-    except Exception:
+        correo_electronico = serializer.loads(token, salt="reset-password", max_age=3600)  # 1 hora de validez
+    except Exception as e:
         flash('El enlace para restablecer la contraseña ha expirado o es inválido.', 'error')
         return redirect(url_for('login'))
 
@@ -516,7 +501,6 @@ def restablecer_contraseña(token):
 
     return render_template('restablecer_contraseña.html', token=token)
 #----------------------------------------------------------------------------------------------------------------------------------------------
-<<<<<<< HEAD
 @app.route("/recover", methods=["POST"])
 def recover():
     correo = request.form["correo_electronico"]
@@ -530,51 +514,37 @@ def recover():
     flash("Correo de recuperación enviado", "success")
     return redirect(url_for('login'))
 #----------------------------------------------------------------------------------------------------------------------------------------------
-=======
-
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
 @app.route('/logout')
 def logout():
-    session.clear()  # Limpiar todos los datos de la sesión
+    # Elimina todos los datos de la sesión
+    session.clear()  # Esto limpia todos los datos de la sesión
+
+    # Mensaje flash para indicar que el usuario cerró sesión
     flash("Has cerrado sesión exitosamente", "success")
-<<<<<<< HEAD
 
     # Redirige al login después de cerrar sesión
     return redirect(url_for("login"))  # Redirige al login
-=======
-    return redirect(url_for("login"))
-
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
 #----------------------------------------------------------------------------------------------------------------------------------------------
 @app.route('/asistente')
 def asistente():
-    if 'user_id' not in session or session['user_type'] != 'asistente':
+    # Verificamos si el usuario está autenticado
+    if 'user_id' not in session or session['user_type'] != 'asistente':  # Verificamos que sea un asistente
         flash("Acceso no autorizado", "error")
         return redirect(url_for("login"))
     
-    return render_template("index_asistente.html")
+    return render_template("index_asistente.html")  # Página principal del asistente
 
 #----------------------------------------------------------------------------------------------------------------------------------------------
 
 @app.route('/organizador')
 def organizador():
-    if 'user_id' not in session or session['user_type'] != 'organizador':
+    # Verificamos si el usuario está autenticado
+    if 'user_id' not in session or session['user_type'] != 'organizador':  # Verificamos que sea un organizador
         flash("Acceso no autorizado", "error")
         return redirect(url_for("login"))
     
-<<<<<<< HEAD
     return render_template("index.html")  # Página principal del organizador
 #---------------------------------------------------------------------------------------------------------------------------------------------
-=======
-    return render_template("index.html")
-
-#----------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-#----------------------------------------------------------------------------------------------------------------------------------------------
-
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
 @app.route('/admin')
 def admin():
     if 'user_id' not in session or session['user_type'] != 'admin':
@@ -599,7 +569,6 @@ def ver_usuarios_admin():
     # Pasamos los usuarios a la plantilla
     return render_template("ver_usuarios.html", usuarios=usuarios)
 #----------------------------------------------------------------------------------------------------------------------------------------------
-<<<<<<< HEAD
 @app.route('/admin/editar_usuario/<int:id_usuario>', methods=['GET', 'POST'])
 def editar_usuario(id_usuario):
     # Verificamos si el usuario está autenticado y es un administrador
@@ -608,36 +577,35 @@ def editar_usuario(id_usuario):
         return redirect(url_for("login"))
 
     # Obtener los datos del usuario a editar
-=======
-@app.route('/sesiones', methods=["GET", "POST"])
-def sesiones():
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
     conexion = crear_conexion()
+    cursor = conexion.cursor(dictionary=True)
+    query = "SELECT * FROM usuario WHERE id_usuario = %s"
+    cursor.execute(query, (id_usuario,))
+    usuario = cursor.fetchone()
+    cursor.close()
+    conexion.close()
 
-    if request.method == "POST":
-        # Captura de datos del formulario
-        titulo = request.form["titulo"]
-        descripcion = request.form["descripcion"]
-        fecha = request.form["fecha"]
-        hora_inicio = request.form["hora_inicio"]
-        hora_fin = request.form["hora_fin"]
-        id_conferencia = request.form["id_conferencia"]
+    if request.method == 'POST':
+        nombre_usuario = request.form['nombre_usuario']
+        correo_electronico = request.form['correo_electronico']
+        tipo_usuario = request.form['tipo_usuario']
 
-        # Insertar en la base de datos
+        # Actualizar los datos en la base de datos
+        conexion = crear_conexion()
         cursor = conexion.cursor()
         query = """
-        INSERT INTO sesion (titulo, descripcion, fecha, hora_inicio, hora_fin, id_conferencia)
-        VALUES (%s, %s, %s, %s, %s, %s)
+            UPDATE usuario 
+            SET nombre_usuario = %s, correo_electronico = %s, tipo_usuario = %s 
+            WHERE id_usuario = %s
         """
-        cursor.execute(query, (titulo, descripcion, fecha, hora_inicio, hora_fin, id_conferencia))
+        cursor.execute(query, (nombre_usuario, correo_electronico, tipo_usuario, id_usuario))
         conexion.commit()
         cursor.close()
         conexion.close()
 
-        # Respuesta con redirección y alerta
-        return jsonify({"success": True, "redirect": "/index"})
+        flash("Usuario actualizado exitosamente", "success")
+        return redirect(url_for('ver_usuarios_admin'))
 
-<<<<<<< HEAD
     return render_template("editar_usuario.html", usuario=usuario)
 #---------------------------------------------------------------------------------------------------------------------------------------------
 @app.route('/admin/eliminar_usuario/<int:id_usuario>', methods=['GET'])
@@ -798,16 +766,3 @@ def inscribe():
 
 if __name__ == "__main__":
     app.run(debug=True)
-=======
-    else:
-        # Obtener las conferencias disponibles
-        cursor = conexion.cursor(dictionary=True)
-        query = "SELECT id_conferencia, nombre FROM conferencia"
-        cursor.execute(query)
-        conferencias = cursor.fetchall()
-        cursor.close()
-        conexion.close()
-
-        # Renderizar la plantilla de sesiones
-    return render_template("sesiones.html", conferencias=conferencias)
->>>>>>> 2dc8fa7f8231c61cc1be7cac096e0d361c1f3ae6
